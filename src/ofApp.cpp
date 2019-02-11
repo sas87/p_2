@@ -160,6 +160,7 @@ void ofApp::draw() {
 				int px = box[0] + j * box[2] / (int)world[0].size();               //列
 
 				ofSetColor(255 * world[i][j], 255 * world[i][j], 255 * world[i][j]);
+				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
 				//if (world[i][j] > div_3)ofSetColor(255,0,0);
 				if (block[i][j])ofSetColor(200, 200, 200);
 				if (i == mY && j == mX)ofSetColor(255, 0, 0);
@@ -173,6 +174,12 @@ void ofApp::draw() {
 		}/**/
 	}
 	ofSetColor(0, 0, 0);
+
+	for (size_t i = 0; i < 256; i++)
+	{
+		ofSetColor(FlotoCol(i / 256.0f).x, FlotoCol(i / 256.0f).y, FlotoCol(i / 256.0f).z);
+		ofDrawRectangle(box[0] - 10, box[1] + i * box[3] / (int)world.size(), box[2] / (int)world[i].size(), box[3] / (int)world[i].size());
+	}
 
 	ofDrawBitmapString(
 		(string)""
@@ -303,15 +310,6 @@ void ofApp::geneChange()
 				}
 				else alpha = div_2;
 
-				if (alpha > 1.0f)
-				{
-					alpha = 1.0;
-				}
-				if (alpha < 0)
-				{
-					alpha = 0.0f;
-				}
-
 				int bc = 4;
 				if (!block[i][j + 1]) {
 					world[i][j + 1] += pw * (1 - alpha)*0.25f;
@@ -366,9 +364,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 ofVec3f ofApp::FlotoCol(float p)
 {
-	//p *= 0.1f;
 	//p = 1.0f - p;
-	p *= 80;
 	if (p <= 1 && p >= 0)
 	{
 		int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
