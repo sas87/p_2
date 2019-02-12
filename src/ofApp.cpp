@@ -18,90 +18,29 @@ void ofApp::setup() {
 
 	box[0] = 80;  //x座標
 	box[1] = 80;  //y座標
-	box[2] = 512;  //x幅
+	box[2] = 1024;  //x幅
 	box[3] = 512;  //y幅
 
 	ofBackground(200, 200, 200);
 
-	/*world = {
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,true ,true ,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,true ,true ,true ,false,true ,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,true ,false,true ,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,true ,false,true ,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,true ,true ,true ,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,true ,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false},
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false },
-	{ false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false}
-	};   //{{行},{行},{行},...}*/
-
-	world = vector<vector<float>>(256, vector<float>(256, 0.0f));
+	world = vector<vector<float>>(256, vector<float>(512, 0.0f));
 	block = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 	blocks_n = vector<vector<int>>(world.size(), vector<int>(world[0].size(), 0));
 	orbt = vector<vector<vector<float>>>(world.size(), vector<vector<float>>(world[0].size(), vector<float>(8, 0.0f)));
 
-	for (size_t i = 0; i < (int)block.size() - 1; i++)
+	for (size_t i = 0; i < (int)block.size(); i++)
 	{
 		block[i][0] = true;
-		block[i][world.size() - 1] = true;
+		block[i][block[0].size() - 1] = true;
 	}
-	for (size_t j = 0; j < (int)block.size() - 1; j++)
+	for (size_t j = 0; j < (int)block[0].size() - 1; j++)
 	{
 		block[0][j] = true;
-		block[world[0].size() - 1][j] = true;
+		block[world.size() - 1][j] = true;
 	}
 
 	n_w = world;
 	n_b = block;
-	vector<vector<bool>> acorn = {
-	{ false,true ,false,false,false,false,false},
-	{ false,false,false,true ,false,false,false},
-	{ true ,true ,false,false,true ,true ,true }
-	};
-	vector<vector<bool>> glidergun = {
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,true ,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,true ,false  ,true ,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,true ,true   ,false,false,false,false,false  ,false,true ,true ,false,false  ,false,false,false,false,false  ,false,false,false,false,false,true ,true ,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,true ,false,false  ,false,true ,false,false,false  ,false,true ,true ,false,false  ,false,false,false,false,false  ,false,false,false,false,false,true ,true ,false },//38
-	{ false,true ,true ,false,false  ,false,false,false,false,false  ,false,true ,false,false,false  ,false,false,true ,false,false  ,false,true ,true ,false,false  ,false,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,true ,true ,false,false  ,false,false,false,false,false  ,false,true ,false,false,false  ,true ,false,true ,true ,false  ,false,false,false,true ,false  ,true ,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,true ,false,false,false  ,false,false,true ,false,false  ,false,false,false,false,false  ,true ,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,true ,false,false  ,false,true ,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,true ,true   ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false,false,false,false },//38
-	{ false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false  ,false,false,false,false,false,false,false,false }//38
-	};
-
-	vector<vector<float>> glidergun_f = {
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,1.0f ,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,1.0f ,0.1f  ,1.0f ,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,1.0f ,1.0f   ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,1.0f ,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,1.0f ,1.0f ,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,1.0f ,0.1f,0.1f  ,0.1f,1.0f ,0.1f,0.1f,0.1f  ,0.1f,1.0f ,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,1.0f ,1.0f ,0.1f },//38
-{ 0.1f,1.0f ,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,1.0f ,0.1f,0.1f,0.1f  ,0.1f,0.1f,1.0f ,0.1f,0.1f  ,0.1f,1.0f ,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,1.0f ,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,1.0f ,0.1f,0.1f,0.1f  ,1.0f ,0.1f,1.0f ,1.0f ,0.1f  ,0.1f,0.1f,0.1f,1.0f ,0.1f  ,1.0f ,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,1.0f ,0.1f,0.1f,0.1f  ,0.1f,0.1f,1.0f ,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,1.0f ,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,1.0f ,0.1f,0.1f  ,0.1f,1.0f ,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,1.0f ,1.0f   ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f },//38
-{ 0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f  ,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f,0.1f }//38
-	};
-
-	vector<vector<bool>> sam1 = {
-	{ false,false,true ,false,true ,false },
-	{ false,true ,true ,false,true ,false },
-	{ true ,false,false,false,false,false },
-	{ false,true ,true ,false,false,true  },
-	{ false,false,true ,false,true ,false }
-	};
 
 	vector<vector<float>> pre1 = { {1.0f} };
 	//vector<vector<bool>> sample1(7, vector<bool>(7, true));
@@ -109,7 +48,7 @@ void ofApp::setup() {
 
 	for (size_t i = 0 + 1; i < (int)world.size() - 1; i++)
 	{
-		for (size_t j = 0 + 1; j < (int)world[i].size() - 1; j++)
+		for (size_t j = 0 + 1; j < (int)world[0].size() - 1; j++)
 		{
 			//world[i][j] = abs(ofRandomf());
 		}
@@ -128,13 +67,13 @@ void ofApp::update() {
 		//if (counter % 2 == 0)
 		geneChange();
 		gene++;
-		/**/
+		/*
 		if (pic < 140)
 		{
 			//img.grabScreen(0, 0, 2*box[0]+box[2], 2*box[1] + box[3]);
 			//img.save("002/"+ofToString(pic)+".png");
 			//pic++;
-		}
+		}*/
 	}
 }
 
@@ -145,6 +84,7 @@ void ofApp::draw() {
 	ofSetColor(0, 0, 0);
 	int width = (int)(box[2] * 1.0f / world[0].size());
 	int height = (int)(box[3] * 1.0f / world.size());
+
 	int mX = (int)((mouseX - box[0]) *1.0f / width);
 	int mY = (int)((mouseY - box[1]) *1.0f / height);
 	if (mX < 0 || mX >= world[0].size())mX = 0;
@@ -166,7 +106,7 @@ void ofApp::draw() {
 				if (i == mY && j == mX)ofSetColor(255, 0, 0);
 
 				//ofSetColor(255* i / (int)world.size(), 255 * j / (int)world[i].size(), 128);                           //Debug
-				ofDrawRectangle(px, py, box[2] / (int)world[i].size(), box[3] / (int)world[i].size());
+				ofDrawRectangle(px, py, box[2] / (int)world[0].size(), box[3] / (int)world.size());
 
 				//ofSetColor(128, 128, 128);                                                                             //Debug
 				//ofDrawBitmapString(ofToString(i) + "," + ofToString(j), px, py+10);                                    //Debug
@@ -175,10 +115,10 @@ void ofApp::draw() {
 	}
 	ofSetColor(0, 0, 0);
 
-	for (size_t i = 0; i < 256; i++)
+	for (size_t i = 0; i < world.size(); i++)
 	{
-		ofSetColor(FlotoCol(i / 256.0f).x, FlotoCol(i / 256.0f).y, FlotoCol(i / 256.0f).z);
-		ofDrawRectangle(box[0] - 10, box[1] + i * box[3] / (int)world.size(), box[2] / (int)world[i].size(), box[3] / (int)world[i].size());
+		ofSetColor(FlotoCol((256 - i) / 256.0f).x, FlotoCol((256 - i) / 256.0f).y, FlotoCol((256 - i) / 256.0f).z);
+		ofDrawRectangle(box[0] - 2 * box[2] / (int)world[0].size(), box[1] + i * box[3] / (int)world.size(), 2 * box[2] / (int)world[0].size(), box[3] / (int)world.size());
 	}
 
 	ofDrawBitmapString(
@@ -201,7 +141,7 @@ void ofApp::keyPressed(int key) {
 		world = n_w;
 		for (size_t i = 0 + 1; i < (int)world.size() - 1; i++)
 		{
-			for (size_t j = 0 + 1; j < (int)world[i].size() - 1; j++)
+			for (size_t j = 0 + 1; j < (int)world[0].size() - 1; j++)
 			{
 				world[i][j] = abs(ofRandomf());
 			}
@@ -290,21 +230,22 @@ void ofApp::geneChange()
 {
 	pre_w = world;
 	world = n_w;
-
-	for (size_t i = 0 + 1; i < (int)pre_w.size() - 1; i++)
+	for (size_t i = 0; i < (int)pre_w.size(); i++)
 	{
-		for (size_t j = 0 + 1; j < (int)pre_w[i].size() - 1; j++)
+		for (size_t j = 0; j < (int)pre_w[0].size(); j++)
 		{
+			/*
 			orbt[i][j][0] = pre_w[i][j];
 			for (size_t k = 0; k < orbt[0][0].size() - 1; k++)
 			{
 				orbt[i][j][k] = orbt[i][j][k + 1];
-			}
+			}*/
 
 			if (!block[i][j]) {
 				float alpha = 0.9f;
 				float pw = pre_w[i][j];
-				if (pre_w[i][j] > div_3)
+
+				if (pw > div_3)
 				{
 					alpha = div_1;
 				}
