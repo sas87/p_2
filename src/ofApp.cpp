@@ -12,18 +12,19 @@ void ofApp::setup() {
 	pic = 0;
 
 	gui.setup();
-	gui.add(div_1.setup("d_1", 0.2f, 0.0f, 1.0f));
-	gui.add(div_2.setup("d_2", 0.805f, 0.0f, 1.0f));
-	gui.add(div_3.setup("d_3", 0.645f, 0.0f, 1.0f));
 
-	box[0] = 80;  //x座標
-	box[1] = 80;  //y座標
-	box[2] = 1024;  //x幅
+	gui.add(div_2.setup("alpha", 0.805f, 0.0f, 1.0f));
+	gui.add(div_1.setup("beta", 0.2f, 0.0f, 1.0f));
+	gui.add(div_3.setup("c", 0.645f, 0.0f, 1.0f));
+
+	box[0] = 10;  //x座標
+	box[1] = 10;  //y座標
+	box[2] = 512;  //x幅
 	box[3] = 512;  //y幅
 
 	ofBackground(200, 200, 200);
 
-	world = vector<vector<float>>(256, vector<float>(512, 0.0f));
+	world = vector<vector<float>>(256, vector<float>(256, 0.0f));
 	block = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 	blocks_n = vector<vector<int>>(world.size(), vector<int>(world[0].size(), 0));
 	orbt = vector<vector<vector<float>>>(world.size(), vector<vector<float>>(world[0].size(), vector<float>(8, 0.0f)));
@@ -38,6 +39,28 @@ void ofApp::setup() {
 		block[0][j] = true;
 		block[world.size() - 1][j] = true;
 	}
+
+	/*
+	for (size_t i = 0; i < (int)block.size(); i++)
+	{
+		if (ofRandomf() > -0.5f)
+		{
+			for (size_t j = 0; j < (int)block[0].size(); j++)
+			{
+				block[i][j] = true;
+			}
+		}
+	}
+	for (size_t j = 1; j < (int)block[0].size() - 1; j++)
+	{
+		if (ofRandomf() > 0.5f)
+		{
+			for (size_t i = 1; i < (int)block.size() - 1; i++)
+			{
+				block[i][j] = false;
+			}
+		}
+	}*/
 
 	n_w = world;
 	n_b = block;
@@ -99,26 +122,19 @@ void ofApp::draw() {
 			{
 				int px = box[0] + j * box[2] / (int)world[0].size();               //列
 
-				ofSetColor(255 * world[i][j], 255 * world[i][j], 255 * world[i][j]);
 				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
-				//if (world[i][j] > div_3)ofSetColor(255,0,0);
+				//ofSetColor(world[i][j] * 255, world[i][j] * 255, world[i][j] * 255);
 				if (block[i][j])ofSetColor(200, 200, 200);
-				if (i == mY && j == mX)ofSetColor(255, 0, 0);
-
-				//ofSetColor(255* i / (int)world.size(), 255 * j / (int)world[i].size(), 128);                           //Debug
 				ofDrawRectangle(px, py, box[2] / (int)world[0].size(), box[3] / (int)world.size());
-
-				//ofSetColor(128, 128, 128);                                                                             //Debug
-				//ofDrawBitmapString(ofToString(i) + "," + ofToString(j), px, py+10);                                    //Debug
 			}
 		}/**/
 	}
 	ofSetColor(0, 0, 0);
 
-	for (size_t i = 0; i < world.size(); i++)
+	for (size_t i = 0; i < 256; i++)
 	{
 		ofSetColor(FlotoCol((256 - i) / 256.0f).x, FlotoCol((256 - i) / 256.0f).y, FlotoCol((256 - i) / 256.0f).z);
-		ofDrawRectangle(box[0] - 2 * box[2] / (int)world[0].size(), box[1] + i * box[3] / (int)world.size(), 2 * box[2] / (int)world[0].size(), box[3] / (int)world.size());
+		ofDrawRectangle(box[0] - 8, box[1] + 2 * i, 2, 2);
 	}
 
 	ofDrawBitmapString(
@@ -130,8 +146,6 @@ void ofApp::draw() {
 		box[0] + box[2] + 50, box[1] + 60);
 	ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", box[0] + box[2] + 50, box[1] + 15);
 
-	{
-	}
 	gui.draw();
 }
 
@@ -243,9 +257,9 @@ void ofApp::geneChange()
 
 			if (!block[i][j]) {
 				float alpha = 0.9f;
-				float pw = pre_w[i][j];
+				float* pw = &pre_w[i][j];
 
-				if (pw > div_3)
+				if (*pw > div_3)
 				{
 					alpha = div_1;
 				}
@@ -253,24 +267,22 @@ void ofApp::geneChange()
 
 				int bc = 4;
 				if (!block[i][j + 1]) {
-					world[i][j + 1] += pw * (1 - alpha)*0.25f;
+					world[i][j + 1] += *pw * (1 - alpha)*0.25f;
 					bc--;
 				}
 				if (!block[i][j - 1]) {
-					world[i][j - 1] += pw * (1 - alpha)*0.25f;
+					world[i][j - 1] += *pw * (1 - alpha)*0.25f;
 					bc--;
 				}
 				if (!block[i + 1][j]) {
-					world[i + 1][j] += pw * (1 - alpha)*0.25f;
+					world[i + 1][j] += *pw * (1 - alpha)*0.25f;
 					bc--;
 				}
 				if (!block[i - 1][j]) {
-					world[i - 1][j] += pw * (1 - alpha)*0.25f;
+					world[i - 1][j] += *pw * (1 - alpha)*0.25f;
 					bc--;
 				}
-				if (!block[i][j]) world[i][j] += pw * (alpha + (1 - alpha)*0.25f*bc);
-
-				blocks_n[i][j] = pw * (alpha + (1 - alpha)*0.25f*bc) * 10;
+				if (!block[i][j]) world[i][j] += *pw * (alpha + (1 - alpha)*0.25f*bc);
 			}
 		}
 	}
@@ -308,9 +320,32 @@ ofVec3f ofApp::FlotoCol(float p)
 	//p = 1.0f - p;
 	if (p <= 1 && p >= 0)
 	{
-		int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
-		int g = 88 + 94 * sin(2.0f*p*PI - PI / 2.0f);
-		int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
+		int r, g, b;
+		r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
+		g = 102 + 102 * sin(2.0f*p*PI - PI / 2.0f);
+		b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
+
+		/*
+		if (p >= 2 / 3.0f)
+		{
+			r = 255;
+			g = 255 - 255 * (3 * p - 2);
+			b = 0;
+		}
+		else if (p >= 1 / 3.0f)
+		{
+			r = 255 * (3 * p - 1);
+			g = 255;
+			b = 255 - 255 * (3 * p - 1);
+		}
+		else
+		{
+			r = 0;
+			g = 255 * (3 * p);
+			b = 255;
+		}
+		*/
+
 		return ofVec3f(r, g, b);/*
 		int r = p * 255;
 		int g = p * 255;
