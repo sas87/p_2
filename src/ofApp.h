@@ -23,7 +23,6 @@ public:
 
 private:
 	int counter;
-	bool start;
 	bool isRunning;
 	int box[4];
 	int gene;
@@ -38,15 +37,16 @@ private:
 	void geneChange();
 	void addVecter(vector<vector<float>> vv1, int x, int y);
 	void addVecter(vector<vector<float>> vv1);
+	void start();
 	ofVec3f FlotoCol(float p);
 
 	ofImage     img;
 	bool videc;
 	int pic;
 
-	ofxFloatSlider div_1;
-	ofxFloatSlider div_2;
-	ofxFloatSlider div_3;
+	ofxFloatSlider d_al;
+	ofxFloatSlider d_bt;
+	ofxFloatSlider d_c;
 
 	ofxPanel gui;
 };
