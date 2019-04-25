@@ -3,7 +3,7 @@
 #define SIZE 256
 //--------------------------------------------------------------
 void ofApp::setup() {
-	//ofDisableAntiAliasing();
+	ofDisableAntiAliasing();
 	isRunning = false;
 	counter = 0;
 	gene = 0;
@@ -11,12 +11,12 @@ void ofApp::setup() {
 	pic = 0;
 
 	gui.setup();
-	float a = 0.805f;
-	float b = 0.2f;
-	float c = 0.645f;
-	gui.add(d_al.setup("alpha",a, 0.0f, 1.0f));
-	gui.add(d_bt.setup("beta", b, 0.0f, 1.0f));
-	gui.add(d_c.setup("c", c, 0.0f, 1.0f));
+
+	gui.add(al.setup("alpha",0.805f, 0.0f, 1.0f));
+	gui.add(bt.setup("beta", 0.2f, 0.0f, 1.0f));
+	gui.add(c0.setup("c", 0.645f, 0.0f, 1.0f));
+	gui.add(max.setup("max", 1.0f, 0.0f, 5.0f));
+	gui.add(min.setup("min", 0.0f, 0.0f, 5.0f));
 	
 	box[0] = 10;  //x座標
 	box[1] = 10;  //y座標
@@ -25,52 +25,12 @@ void ofApp::setup() {
 
 	ofBackground(200, 200, 200);
 	
-
 	world = vector<vector<float>>(SIZE, vector<float>(SIZE, 0.0f));
 	block = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 	blocks_n = vector<vector<int>>(world.size(), vector<int>(world[0].size(), 0));
 	orbt = vector<vector<vector<float>>>(world.size(), vector<vector<float>>(world[0].size(), vector<float>(8, 0.0f)));
-
-	/*
-	for (size_t i = 0; i < (int)block.size(); i++)
-	{
-		block[i][0] = true;
-		block[i][block[0].size() - 1] = true;
-	}
-	for (size_t j = 0; j < (int)block[0].size() - 1; j++)
-	{
-		block[0][j] = true;
-		block[world.size() - 1][j] = true;
-	}*/
-
-	/*
-	for (size_t i = 0; i < (int)block.size(); i++)
-	{
-		if (ofRandomf() > -0.5f)
-		{
-			for (size_t j = 0; j < (int)block[0].size(); j++)
-			{
-				block[i][j] = true;
-			}
-		}
-	}
-	for (size_t j = 1; j < (int)block[0].size() - 1; j++)
-	{
-		if (ofRandomf() > 0.5f)
-		{
-			for (size_t i = 1; i < (int)block.size() - 1; i++)
-			{
-				block[i][j] = false;
-			}
-		}
-	}*/
-
 	n_w = world;
 	n_b = block;
-
-	//vector<vector<float>> pre1 = { {1.0f} };
-	//vector<vector<bool>> sample1(7, vector<bool>(7, true));
-	//addVecter(pre1);
 
 	start();
 
@@ -81,26 +41,16 @@ void ofApp::setup() {
 void ofApp::update() {
 	counter++;
 	if (counter > 1000)counter = 0;
-	//if (start && (world != pre_w))
 	if (isRunning)
 	{
-		//if (counter % 2 == 0)
 		geneChange();
 		gene++;
-		/*
-		if (pic < 140)
-		{
-			//img.grabScreen(0, 0, 2*box[0]+box[2], 2*box[1] + box[3]);
-			//img.save("002/"+ofToString(pic)+".png");
-			//pic++;
-		}*/
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 	ofSetColor(200, 200, 200);
-	//ofDrawRectangle(box[0] - 5, box[1] - 5, box[2] + 10, box[3] + 10);
 	ofSetColor(0, 0, 0);
 	int width = (int)(box[2] * 1.0f / world[0].size());
 	int height = (int)(box[3] * 1.0f / world.size());
@@ -126,22 +76,21 @@ void ofApp::draw() {
 			}
 		}/**/
 	}
-	ofSetColor(0, 0, 0);
 
 	for (size_t i = 0; i < 256; i++)
 	{
 		ofSetColor(FlotoCol((256 - i) / 256.0f).x, FlotoCol((256 - i) / 256.0f).y, FlotoCol((256 - i) / 256.0f).z);
 		ofDrawRectangle(box[0] - 8, box[1] + 2 * i, 2, 2);
 	}
-
+	ofSetColor(0, 0, 0);
 	ofDrawBitmapString(
 		(string)""
 		+ "isRunning: " + ofToString(isRunning) + "\r\n"
 		+ "g:" + ofToString(gene) + "\r\n"
 		+ "\r\n"
 		+ "m:" + ofToString(world[mY][mX]) + "\r\n"
-		+ "V_M:" + ofToString(d_c*(d_al*1.0f/d_bt)) + "\r\n"
-		+ "v_m:" + ofToString(d_c * (d_bt * 1.0f / d_al)) + "\r\n",
+		+ "V_M:" + ofToString(c0*(al*1.0f/bt)) + "\r\n"
+		+ "v_m:" + ofToString(c0 * (bt * 1.0f / al)) + "\r\n",
 		box[0] + box[2] + 50, box[1] + 60);
 	ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", box[0] + box[2] + 50, box[1] + 15);
 
@@ -229,6 +178,7 @@ void ofApp::windowResized(int w, int h) {
 void ofApp::gotMessage(ofMessage msg) {
 }
 
+float alpha, pw;
 void ofApp::geneChange()
 {
 	pre_w = world;
@@ -241,15 +191,11 @@ void ofApp::geneChange()
 	{
 		for (size_t j = 0; j < je; j++)
 		{
-			if (true) {
-				float alpha;
-				float pw = pre_w[i][j];
+			if (true) {			
+				pw = pre_w[i][j];
 
-				if (pw > d_c)
-				{
-					alpha = d_bt;
-				}
-				else alpha = d_al;
+				if (pw > c0)alpha = bt;
+				else alpha = al;
 				
 				world[i][(j + 1) % je] += pw * (1 - alpha) / 4.0f;
 				world[i][(j - 1 + je) % je] += pw * (1 - alpha) / 4.0f;
@@ -287,8 +233,8 @@ void ofApp::addVecter(vector<vector<float>> vv1)
 void ofApp::start()
 {
 	world = n_w;
-	float min = d_al;// d_c* d_bt* 1.0f / d_al;
-	float max = d_bt;// d_c* d_al* 1.0f / d_bt;
+	float min = al;// c0* bt* 1.0f / al;
+	float max = bt;// c0* al* 1.0f / bt;
 	for (size_t i = 0; i < (int)world.size(); i++)
 	{
 		for (size_t j = 0; j < (int)world[0].size(); j++)
@@ -308,21 +254,14 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 ofVec3f ofApp::FlotoCol(float p)
 {
-	//p = -(d_bt * (d_al * p - d_bt * d_c)) / ((d_bt - d_al) * (d_bt + d_al) * d_c);//(p - d_c * (d_bt * 1.0f / d_al)) * 1.0 / (d_c * (d_al * 1.0f / d_bt - d_bt * 1.0f / d_al));
+	//p = -(bt * (al * p - bt * c0)) / ((bt - al) * (bt + al) * c0);//(p - c0 * (bt * 1.0f / al)) * 1.0 / (c0 * (al * 1.0f / bt - bt * 1.0f / al));
 	
-	float min = d_bt;// d_c* d_bt* 1.0f / d_al;
-	float max = d_al;// d_c* d_al* 1.0f / d_bt;
+	//float minm = max;// c0* bt* 1.0f / al;
+	//float maxim = min;// c0* al* 1.0f / bt;
 	p = (p - min) * 1.0f / (max - min);
 	if (p <= 1 && p >= 0)
 	{
-		//return ofVec3f(p * 255, p * 255, p * 255);
-		/**/
-		int r, g, b;/*
-		r = 128 + 127 * sin(2.0f* p*PI / 2.0f - PI / 2.0f);
-		g = 102 + 102 * sin(2.0f* p*PI - PI / 2.0f);
-		b = 128 + 64 * sin(2.0f* p*PI - PI / 4.0f);*/
-
-		/**/
+		int r, g, b;
 		if (p >= 2 / 3.0f)
 		{
 			r = 255;
@@ -342,10 +281,9 @@ ofVec3f ofApp::FlotoCol(float p)
 			b = 255;
 		}
 		
-
 		return ofVec3f(r, g, b);
 	}
-	else if (p <= 0)
+	else if (p <= min)
 	{
 		return ofVec3f(0, 0, 0);
 	}

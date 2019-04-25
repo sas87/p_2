@@ -44,9 +44,12 @@ private:
 	bool videc;
 	int pic;
 
-	ofxFloatSlider d_al;
-	ofxFloatSlider d_bt;
-	ofxFloatSlider d_c;
+	ofxFloatSlider al;
+	ofxFloatSlider bt;
+	ofxFloatSlider c0;
+
+	ofxFloatSlider max;
+	ofxFloatSlider min;
 
 	ofxPanel gui;
 };
