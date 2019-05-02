@@ -2,6 +2,16 @@
 #include "ofxGui.h"
 #include "ofMain.h"
 
+class gra {
+public:
+
+	gra();
+	ofColor flotocol(float p);
+	void draw(int x, int y);
+	int height,width,rep;
+	float min, max;
+};
+
 class ofApp : public ofBaseApp {
 public:
 	void setup();
@@ -38,7 +48,6 @@ private:
 	void addVecter(vector<vector<float>> vv1, int x, int y);
 	void addVecter(vector<vector<float>> vv1);
 	void start();
-	ofVec3f FlotoCol(float p);
 
 	ofImage     img;
 	bool videc;
@@ -52,4 +61,7 @@ private:
 	ofxFloatSlider min;
 
 	ofxPanel gui;
+	gra* col;
 };
+
+

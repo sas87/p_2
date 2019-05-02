@@ -9,6 +9,7 @@ void ofApp::setup() {
 	gene = 0;
 	videc = false;
 	pic = 0;
+	
 
 	gui.setup();
 
@@ -18,14 +19,16 @@ void ofApp::setup() {
 	gui.add(max.setup("max", 1.0f, 0.0f, 5.0f));
 	gui.add(min.setup("min", 0.0f, 0.0f, 5.0f));
 	
-	box[0] = 10;  //x座標
+	box[0] = 50;  //x座標
 	box[1] = 10;  //y座標
-	box[2] = 512;  //x幅
-	box[3] = 512;  //y幅
+	box[2] = SIZE*6;  //x幅
+	box[3] = SIZE*3;  //y幅
 
 	ofBackground(200, 200, 200);
-	
-	world = vector<vector<float>>(SIZE, vector<float>(SIZE, 0.0f));
+
+	col = new gra();
+
+	world = vector<vector<float>>(SIZE, vector<float>(SIZE*2, 0.0f));
 	block = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 	blocks_n = vector<vector<int>>(world.size(), vector<int>(world[0].size(), 0));
 	orbt = vector<vector<vector<float>>>(world.size(), vector<vector<float>>(world[0].size(), vector<float>(8, 0.0f)));
@@ -44,6 +47,8 @@ void ofApp::update() {
 	if (isRunning)
 	{
 		geneChange();
+		col->max = max;
+		col->min = min;
 		gene++;
 	}
 }
@@ -69,19 +74,16 @@ void ofApp::draw() {
 			{
 				int px = box[0] + j * box[2] / (int)world[0].size();               //列
 
-				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
+				ofSetColor(col->flotocol(world[i][j]));
 				//ofSetColor(world[i][j] * 255, world[i][j] * 255, world[i][j] * 255);
-				if (j==mX&&i==mY)ofSetColor(255,0,0);
+				if (j == mX && i == mY)ofSetColor(255, 0, 0);
 				ofDrawRectangle(px, py, box[2] / (int)world[0].size(), box[3] / (int)world.size());
 			}
-		}/**/
+		}
 	}
 
-	for (size_t i = 0; i < 256; i++)
-	{
-		ofSetColor(FlotoCol((256 - i) / 256.0f).x, FlotoCol((256 - i) / 256.0f).y, FlotoCol((256 - i) / 256.0f).z);
-		ofDrawRectangle(box[0] - 8, box[1] + 2 * i, 2, 2);
-	}
+	col->draw(box[0] - 15, box[1] + box[3]/2);
+
 	ofSetColor(0, 0, 0);
 	ofDrawBitmapString(
 		(string)""
@@ -145,7 +147,6 @@ void ofApp::mouseDragged(int x, int y, int button) {
 		int mY = (int)((y - box[1]) *1.0f / height);
 		if (mX < 0 || mX >= world[0].size())mX = 0;
 		if (mY < 0 || mY >= world.size())mY = 0;
-
 		block[mY][mX] = false;
 	}
 }
@@ -235,12 +236,9 @@ void ofApp::start()
 	world = n_w;
 	float min = al;// c0* bt* 1.0f / al;
 	float max = bt;// c0* al* 1.0f / bt;
-	for (size_t i = 0; i < (int)world.size(); i++)
-	{
-		for (size_t j = 0; j < (int)world[0].size(); j++)
-		{
-			world[i][j] = abs(ofRandomf()) * (max - min) + min;
-			//world[i][j] = (i + j) % 2 == 0 ? min : max;			
+	for (auto&& vy : world) {
+		for (auto&& v : vy) {
+			v = abs(ofRandomf()) * (max - min) + min;
 		}
 	}
 	orbt = vector<vector<vector<float>>>(world.size(), vector<vector<float>>(world[0].size(), vector<float>(100, 0.0f)));
@@ -252,13 +250,10 @@ void ofApp::start()
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 }
 
-ofVec3f ofApp::FlotoCol(float p)
+ofColor gra::flotocol(float p)
 {
-	//p = -(bt * (al * p - bt * c0)) / ((bt - al) * (bt + al) * c0);//(p - c0 * (bt * 1.0f / al)) * 1.0 / (c0 * (al * 1.0f / bt - bt * 1.0f / al));
-	
-	//float minm = max;// c0* bt* 1.0f / al;
-	//float maxim = min;// c0* al* 1.0f / bt;
 	p = (p - min) * 1.0f / (max - min);
+
 	if (p <= 1 && p >= 0)
 	{
 		int r, g, b;
@@ -280,15 +275,37 @@ ofVec3f ofApp::FlotoCol(float p)
 			g = 255 * (3 * p);
 			b = 255;
 		}
-		
-		return ofVec3f(r, g, b);
+
+		return ofColor(r, g, b);
 	}
 	else if (p <= min)
 	{
-		return ofVec3f(0, 0, 0);
+		return ofColor(0, 0, 0);
 	}
 	else
 	{
-		return ofVec3f(255, 255, 255);
+		return ofColor(255, 255, 255);
 	}
+}
+
+gra::gra()
+{
+	min = 0.0f;
+	max = 1.0f;
+
+	width = 4;
+	height = 256;
+	rep = 256;
+}
+
+void gra::draw(int x, int y)
+{
+	for (size_t i = 0; i < rep; i++)
+	{
+		float cl = (i * 1.0f / rep);
+		ofSetColor(flotocol(cl * (max - min) + min));
+		ofDrawRectangle(x, (int)(cl * height + y - (height / 2)), width, (int)height/rep);
+	}
+	ofSetColor(0, 0, 0);
+	//ofDrawBitmapString(ofToString(min), x, y - height / 2);
 }
