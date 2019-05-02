@@ -264,3 +264,6 @@ __pycache__/
 *.vcxproj
 *.vcxproj.filters
 *.rc
+*.gitignore
+*.gitattributes
+*.make
